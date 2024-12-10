@@ -1,0 +1,33 @@
+2024-12-07 16:09:26.525660
+
+tb1: /home/ml/apps/python/projects/SQLcells/testfiles/mt_cost.xlsx
+
+select * from tb1
+-------------------
+2024-12-07 20:00:48.725471
+
+tb1: /home/ml/apps/python/projects/SQLcells/testfiles/mt_sales.xlsx
+
+select sum(amount) from tb1
+	where item = 'A-005-31'
+-------------------
+2024-12-09 19:32:47.174810
+
+tb1: /home/ml/apps/python/projects/SQLcells/testfiles/mt_cost.xlsx
+tb2: /home/ml/apps/python/projects/SQLcells/testfiles/mt_sales.xlsx
+
+select tb1.item, (amount - cost) profat from tb1, tb2
+	where tb1.item = tb2.item
+	group by tb2.item
+
+-------------------
+2024-12-09 19:33:40.172370
+
+tb1: /home/ml/apps/python/projects/SQLcells/testfiles/mt_cost.xlsx
+tb2: /home/ml/apps/python/projects/SQLcells/testfiles/mt_sales.xlsx
+
+select tb1.item, sum(amount - cost) profat from tb1, tb2
+	where tb1.item = tb2.item
+	group by tb1.item
+
+-------------------
