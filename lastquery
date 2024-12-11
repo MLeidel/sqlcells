@@ -1,8 +1,9 @@
-tb1: /home/ml/apps/python/projects/SQLcells/testfiles/mt_cost.xlsx
-tb2: /home/ml/apps/python/projects/SQLcells/testfiles/mt_sales.xlsx
+tb1: /home/ml/apps/python/projects/sqlcells/testfiles/mt_cost.xlsx
+tb2: /home/ml/apps/python/projects/sqlcells/testfiles/mt_sales.xlsx
 SQL
 select tb1.item, sum(amount - cost) profat from tb1, tb2
 	where tb1.item = tb2.item
 	group by tb1.item
+
 
 

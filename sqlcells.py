@@ -9,6 +9,7 @@ from tkinter.font import Font
 from tkinter import Listbox
 from tkinter import filedialog
 from tkinter import messagebox
+from tkinter import simpledialog
 from datetime import datetime
 import subprocess
 import pandas as pd
@@ -36,7 +37,7 @@ class Application(Frame):
         self.lstn = Listbox(self, exportselection=False, width=60, height=4)
         self.lstn.grid(row=1, column=1, sticky="wnse")
 
-        self.lstn.bind("<<ListboxSelect>>", self.on_select_list)
+        self.lstn.bind("<<ListboxSelect>>", self.prompt_info)
 
         self.scroll_list = Scrollbar(self, orient=VERTICAL, command=self.lstn.yview)
         self.scroll_list.grid(row=1, column=2, sticky="wns")  # use nse
@@ -216,14 +217,6 @@ class Application(Frame):
         elif ntbs == 6:
             tb1, tb2, tb3, tb4, tb5, tb6 = tbs[0], tbs[1], tbs[2], tbs[3], tbs[4], tbs[5]
 
-    def on_select_list(self, item):
-        ''' open this file in spreadsheet program '''
-        ans = messagebox.askokcancel('View file contents', 'Open in spreadsheet?')
-        if ans:
-            list_item = self.lstn.get(ANCHOR)
-            self.parse_input(list_item)
-            subprocess.Popen(['libreoffice', '--calc', cfile])
-
     def read_saved_query(self, filepath):
         ''' reads file of saved query code and displays in user's GUI '''
         code = ""
@@ -255,6 +248,31 @@ class Application(Frame):
         self.save_query("lastquery")
         save_location()  # exit program
 
+    def prompt_info(self, e=None):
+        ''' Does user want to see spreadsheet or only column names/types '''
+        request = simpledialog.askinteger("Spreadsheet Action",
+                                          "Enter 1 to open spreadsheet\nEnter 2 to view file Info",
+                                          parent=self,
+                                          initialvalue=1)
+        list_item = self.lstn.get(ANCHOR)
+        self.parse_input(list_item)
+        if request == 1:
+            subprocess.Popen(['libreoffice', '--calc', cfile])
+        elif request == 2:
+            if ctype == "csv":
+                df = pd.read_csv(cfile)
+            else:
+                df = pd.read_excel(cfile)
+            self.info_window(df.dtypes)
+
+    def info_window(self, dframe):
+        ''' user want to see column names/types '''
+        t = Toplevel(self)
+        t.wm_title("Info")
+        l = Label(t, text=dframe)
+        l.grid(row=0, column=0, padx=10, pady=10)
+        btn = Button(t, text="Close", command = t.destroy)
+        btn.grid(row=1, column=0, sticky='sew', padx=5, pady=5)
 
 # change working directory to path for this file
 p = os.path.realpath(__file__)
