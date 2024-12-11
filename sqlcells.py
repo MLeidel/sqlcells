@@ -20,8 +20,8 @@ from ttkbootstrap.constants import *
 cdf = ""
 cfile = ""
 ctype = ""
-tb1, tb2, tb3, tb4, tb5, tb6 = "", "", "", "", "", ""
-tbs = []
+d1, d2, d3, d4, d5, d6 = "", "", "", "", "", ""
+ds = []
 
 
 class Application(Frame):
@@ -115,8 +115,8 @@ class Application(Frame):
                                                          ("csv files","*.csv"),("all files","*.*")))
         if fname:
             try:
-                tb = "tb" + str(self.lstn.size() + 1)
-                self.lstn.insert(tk.END, tb + ": " + fname)
+                d = "d" + str(self.lstn.size() + 1)
+                self.lstn.insert(tk.END, d + ": " + fname)
             except:
                 messagebox.showerror("Open File", "Failed to open file\n'%s'" % fname)
 
@@ -191,9 +191,9 @@ class Application(Frame):
 
     def load_data_frames(self):
         ''' load data frames from the list of input files (tables)
-        using global vars tb1 ... tb6 - MAX 6 files '''
-        global tb1, tb2, tb3, tb4, tb5, tb6, tbs
-        tbs.clear()
+        using global vars d1 ... d6 - MAX 6 files '''
+        global d1, d2, d3, d4, d5, d6, ds
+        ds.clear()
         items = list(self.lstn.get(0, tk.END))
         for f in items:
             self.parse_input(f)
@@ -201,21 +201,21 @@ class Application(Frame):
                 df = pd.read_csv(cfile)
             else:
                 df = pd.read_excel(cfile)
-            tbs.append(df)
-        # tb1, tb2, tb3, tb4, tb5 = tbs[0], tbs[1], tbs[2], tbs[3], tbs[4]
-        ntbs = len(items)
-        if ntbs == 1:
-            tb1 = tbs[0]
-        elif ntbs == 2:
-            tb1, tb2 = tbs[0], tbs[1]
-        elif ntbs == 3:
-            tb1, tb2, tb3 = tbs[0], tbs[1], tbs[2]
-        elif ntbs == 4:
-            tb1, tb2, tb3, tb4 = tbs[0], tbs[1], tbs[2], tbs[3]
-        elif ntbs == 5:
-            tb1, tb2, tb3, tb4, tb5 = tbs[0], tbs[1], tbs[2], tbs[3], tbs[4]
-        elif ntbs == 6:
-            tb1, tb2, tb3, tb4, tb5, tb6 = tbs[0], tbs[1], tbs[2], tbs[3], tbs[4], tbs[5]
+            ds.append(df)
+        # d1, d2, d3, d4, d5 = ds[0], ds[1], ds[2], ds[3], ds[4]
+        nds = len(items)
+        if nds == 1:
+            d1 = ds[0]
+        elif nds == 2:
+            d1, d2 = ds[0], ds[1]
+        elif nds == 3:
+            d1, d2, d3 = ds[0], ds[1], ds[2]
+        elif nds == 4:
+            d1, d2, d3, d4 = ds[0], ds[1], ds[2], ds[3]
+        elif nds == 5:
+            d1, d2, d3, d4, d5 = ds[0], ds[1], ds[2], ds[3], ds[4]
+        elif nds == 6:
+            d1, d2, d3, d4, d5, d6 = ds[0], ds[1], ds[2], ds[3], ds[4], ds[5]
 
     def read_saved_query(self, filepath):
         ''' reads file of saved query code and displays in user's GUI '''
@@ -250,6 +250,7 @@ class Application(Frame):
 
     def prompt_info(self, e=None):
         ''' Does user want to see spreadsheet or only column names/types '''
+        print("got here")
         request = simpledialog.askinteger("Spreadsheet Action",
                                           "Enter 1 to open spreadsheet\nEnter 2 to view file Info",
                                           parent=self,
