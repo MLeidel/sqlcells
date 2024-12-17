@@ -8,8 +8,9 @@ A Python Desktop GUI**
 
 ![program](images/spreadsheets.png "spreadsheets")
 
-When launch is checked, the result is opened in LibreOffice Calc
+When _Launch_ is checked, the result is opened in LibreOffice Calc.  
+WHen _Log_ is checked, the input file paths and SQL code is appended to a log file.
 
 Clicking on an input file lets you open the spreadsheet/csv or view the columns and data types.
 
-Up to six input files are allowd.
+SQL queries can handle no more than six input files.

@@ -12,6 +12,7 @@ from tkinter import messagebox
 from tkinter import simpledialog
 from datetime import datetime
 import subprocess
+import platform
 import pandas as pd
 import pandasql as psql
 from ttkbootstrap import *
@@ -62,6 +63,7 @@ class Application(Frame):
         self.sqltext.config(wrap="word", # wrap=NONE
                             undo=True, # Tk 8.4
                             #width=20,
+                            fg='lightgreen',
                             height=8,
                             padx=5, # inner margin
                             insertbackground='#fff',   # cursor color
@@ -165,7 +167,10 @@ class Application(Frame):
             result_df.to_csv(outfile)
         # check to see if launch spreadsheet requested
         if self.vckbox.get() == 1:
-            subprocess.Popen(['libreoffice', '--calc', outfile])
+            if platform.system() == 'Windows':
+                subprocess.Popen(["C:\\Program Files\\LibreOffice\\program\\scalc.exe",  outfile])
+            else:
+                subprocess.Popen(['libreoffice', '--calc', outfile])
         # check to see if logging requested
         if self.vSckbox.get() == 1:
             with open("sqllog.txt", "a", encoding='utf-8') as fout:
@@ -258,7 +263,10 @@ class Application(Frame):
         list_item = self.lstn.get(ANCHOR)
         self.parse_input(list_item)
         if request == 1:
-            subprocess.Popen(['libreoffice', '--calc', cfile])
+            if platform.system() == 'Windows':
+                subprocess.Popen(["C:\\Program Files\\LibreOffice\\program\\scalc.exe",  cfile])
+            else:
+                subprocess.Popen(['libreoffice', '--calc', cfile])
         elif request == 2:
             if ctype == "csv":
                 df = pd.read_csv(cfile)
