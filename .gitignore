@@ -1,2 +1,7 @@
 *.zip
 zipper
+sqlcells.zip
+lastquery
+sqllog.log
+/home/ml/apps/python/projects/sqlcells/testfiles/sql3.txt
+/home/ml/apps/python/projects/sqlcells/testfiles/sql_insurance.txt

@@ -44,3 +44,61 @@ select d1.item, sum(amount - cost) profat from d1, d2
 
 
 -------------------
+2024-12-16 20:36:54.916768
+
+d2: /home/ml/apps/python/projects/sqlcells/testfiles/mt_sales.xlsx
+
+select * from d1 order by amount
+
+
+-------------------
+2024-12-17 18:34:40.126748
+
+d1: /home/ml/apps/python/projects/sqlcells/testfiles/mt_sales.xlsx
+
+select * from d1 order by amount
+
+-------------------
+2024-12-17 20:37:25.901110
+
+d1: /home/ml/apps/python/projects/sqlcells/testfiles/mt_cost.xlsx
+d2: /home/ml/apps/python/projects/sqlcells/testfiles/mt_sales.xlsx
+
+select d2.item, cost, amount, (amount - cost) Profit from d1, d2
+	where d1.item = d2.item
+	order by Profit
+
+
+-------------------
+2024-12-18 10:32:18.319306
+
+d1: /home/ml/apps/python/projects/sqlcells/testfiles/mt_cost.xlsx
+d2: /home/ml/apps/python/projects/sqlcells/testfiles/mt_sales.xlsx
+
+select d2.item, cost, amount, (amount - cost) Profit from d1, d2
+	where d1.item = d2.item
+	order by Profit
+
+
+-------------------
+2024-12-18 10:35:09.920771
+
+d1: /home/ml/apps/python/projects/sqlcells/testfiles/mt_cost.xlsx
+d2: /home/ml/apps/python/projects/sqlcells/testfiles/mt_sales.xlsx
+
+select d1.item, sum(amount - cost) Profat from d1, d2
+	where d1.item = d2.item
+	group by d1.item
+
+-------------------
+2024-12-18 11:41:34.688618
+
+d1: /home/ml/apps/python/projects/sqlcells/testfiles/mt_cost.xlsx
+d2: /home/ml/apps/python/projects/sqlcells/testfiles/mt_sales.xlsx
+
+select d1.item, sum(amount - cost) Profat from d1, d2
+	where d1.item = d2.item
+	group by d1.item
+
+
+-------------------

@@ -9,8 +9,32 @@ A Python Desktop GUI**
 ![program](images/spreadsheets.png "spreadsheets")
 
 When _Launch_ is checked, the result is opened in LibreOffice Calc.  
-WHen _Log_ is checked, the input file paths and SQL code is appended to a log file.
+When _Log_ is checked, the input file paths and SQL code is appended to a log file.
+
+There is a limit of seven input tables (files: spreadsheet or csv)
 
 Clicking on an input file lets you open the spreadsheet/csv or view the columns and data types.
 
-SQL queries can handle no more than six input files.
+![program](images/viewing.png "SQLcells.py")
+
+The following is an example of a saved query setup file. _sql\_sample.txt_
+
+        d1: /home/user/python/projects/sqlcells/testfiles/sampledatainsnames.xlsx  
+        d2: /home/user/python/projects/sqlcells/testfiles/sampledatainsurance.xlsx  
+        SQL  
+        select d1.Policy, last_name, first_name, Expiry, State, InsuredValue  
+        	from d1, d2  
+        	order by State, Expiry, last_name  
+
+        OUTPUT
+        /home/user/python/projects/sqlcells/out.xlsx
+        LAUNCH
+        LOG
+
+An existing query can be run in an _unattended_ or _batch mode_ by using the saved query setup file
+as an argument at startup:
+
+    $ python3 sqlcells.py sql_sample.txt
+
+The Launch and Log options will still apply as they were set when saved.
+
