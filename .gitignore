@@ -4,5 +4,5 @@ sqlcells.zip
 lastquery
 README.html
 sqllog.log
-/home/ml/apps/python/projects/sqlcells/testfiles/sql3.txt
-/home/ml/apps/python/projects/sqlcells/testfiles/sql_insurance.txt
+testfiles/sql3.txt
+testfiles/sql_insurance.txt
