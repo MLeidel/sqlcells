@@ -1,7 +1,6 @@
 *.zip
 zipper
 sqlcells.zip
-lastquery
 README.html
 sqllog.log
 testfiles/sql3.txt

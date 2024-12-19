@@ -4,7 +4,8 @@ date: Dec 2024
 comments:
     Use SQL on Spreadsheets (.xlsx, csv)
 '''
-import os, sys
+import os
+import sys
 from tkinter.font import Font
 from tkinter import Listbox
 from tkinter import filedialog
@@ -18,12 +19,18 @@ import pandasql as psql
 from ttkbootstrap import *
 from ttkbootstrap.constants import *
 from ttkbootstrap.tooltip import ToolTip
+from ttkbootstrap.toast import ToastNotification
 
 cdf = ""
 cfile = ""
 ctype = ""
 d1, d2, d3, d4, d5, d6, d7 = "", "", "", "", "", "", ""
-ds = []
+# ds = []
+toast = ToastNotification(
+    title="SQLcells",
+    message="Query Setup Saved!",
+    duration=2500,
+)
 
 
 class Application(Frame):
@@ -32,6 +39,7 @@ class Application(Frame):
         Frame.__init__(self, parent)
         self.pack(fill=BOTH, expand=True, padx=4, pady=4)
         self.create_widgets()
+        self.savefile = ""
 
     def create_widgets(self):
         ''' creates GUI for app '''
@@ -119,15 +127,17 @@ class Application(Frame):
         ToolTip(btn_close, text="Ctrl-Q")
 
         root.bind("<Control-q>", self.on_exit)
+        root.bind("<Control-s>", self.quicksave)
 
         # to use sqlcells in a "batch" command line operation
         # simply use a saved SQL setup file as argument 1
-        if len(sys.argv) > 0:
+        if len(sys.argv) > 1:
             self.read_saved_query(sys.argv[1])
             self.on_submit()
             self.on_exit()
         else:
-            self.read_saved_query('lastquery')  # open last query setup
+            if os.path.isfile("lastquery"):
+                self.read_saved_query('lastquery')  # open last query setup
 
     # ----------------------------------------------------------------------------
 
@@ -153,7 +163,7 @@ class Application(Frame):
         ''' set an input table (csv or excel file) '''
         fname =  filedialog.askopenfilename(initialdir = p,
                                             title = "Open file",
-                                            filetypes = (("xlsx files","*.xlsx"),
+                                            filetypes = (("xlsx files","*.xls*"),
                                             ("csv files","*.csv"),("all files","*.*")))
         if fname:
             try:
@@ -171,16 +181,14 @@ class Application(Frame):
         fname = filedialog.asksaveasfilename(confirmoverwrite=True,
                                             initialdir=os.path.dirname(os.path.abspath(__file__)),
                                             title = "Save Results",
-                                            filetypes = (("xlsx files","*.xlsx"),
+                                            filetypes = (("xlsx files","*.xls*"),
                                             ("csv files","*.csv"),("all files","*.*")) )
         if fname:
             self.ventr.set(fname)
 
     def on_clear(self):
         ''' Remove all input files from the list '''
-        items = list(self.lstn.get(0, tk.END))
-        for f in items:
-            self.lstn.delete(0)
+        self.lstn.delete(0, tk.END)
 
     def on_submit(self):
         ''' load the data frames and execute the SQL
@@ -193,10 +201,17 @@ class Application(Frame):
         if self.lstn.size() == 0:
             messagebox.showerror("Input", "Input files missing")
             return
+
         query = self.sqltext.get("1.0", END)
         if len(query) < 5:
             messagebox.showerror("Query", "Query Code missing")
             return
+
+        # Filter out query lines that start with #
+        lines = query.splitlines()
+        sql_lines = [line for line in lines if not line.lstrip().startswith("#")]
+        query = "\n".join(sql_lines)
+
         self.load_data_frames()
         # now get the SQL code and execute
         try:
@@ -243,8 +258,9 @@ class Application(Frame):
     def load_data_frames(self):
         ''' load data frames from the list of input files (tables)
         using global vars d1 ... d6 - MAX 6 files '''
-        global d1, d2, d3, d4, d5, d6, d7, ds
-        ds.clear()
+        global d1, d2, d3, d4, d5, d6, d7
+        ds = []
+        # ds.clear()
         items = list(self.lstn.get(0, tk.END))
         for f in items:
             self.parse_input(f)
@@ -273,6 +289,7 @@ class Application(Frame):
     def read_saved_query(self, filepath):
         ''' reads file of saved query code and displays in user's GUI '''
         code = ""
+        self.savefile = filepath # for quicksave
         with open(filepath, "r", encoding='utf-8') as fin:
             line = fin.readline().strip()
             self.on_clear()
@@ -293,11 +310,12 @@ class Application(Frame):
                 if line == "LOG":
                     self.vSckbox.set(1)
         self.sqltext.delete("1.0", END)  # clear the Text widget
-        self.sqltext.insert(1.0, code)  # insert the SQL code
+        self.sqltext.insert(1.0, code.strip())  # insert the SQL code
         self.ventr.set(path)  # output path
 
     def save_query(self, filepath):
         ''' writes input file paths and SQL code to filepath '''
+        self.savefile = filepath  # for quicksave
         with open(filepath, "w", encoding='utf-8') as fout:
             items = list(self.lstn.get(0, tk.END))
             for line in items:
@@ -317,6 +335,16 @@ class Application(Frame):
         ''' Control-Q saves the current query details '''
         self.save_query("lastquery")
         save_location()  # exit program
+
+    def quicksave(self, e=None):
+        ''' Save with Ctrl-S when self.savefile != ""
+            otherwise, open for save with filedialog.
+            savefile set with on_open and on_save. '''
+        if self.savefile != "":
+            self.save_query(self.savefile)
+            toast.show_toast()
+        else:
+            self.on_save()
 
     def prompt_info(self, e=None):
         ''' Does user want to see spreadsheet or only column names/types '''
@@ -358,7 +386,7 @@ os.chdir(os.path.dirname(p))
 # 'sandstone', 'yeti', 'pulse', 'united', 'morph',
 # 'journal', 'darkly', 'superhero', 'solar', 'cyborg',
 # 'vapor', 'simplex', 'cerculean'
-root = Window("SQLcells", "darkly", size=(400, 400))
+root = Window("SQLcells", "darkly", size=(673, 372))
 
 # UNCOMMENT THE FOLLOWING TO SAVE GEOMETRY INFO
 def save_location(e=None):
@@ -369,18 +397,18 @@ def save_location(e=None):
 
 # UNCOMMENT THE FOLLOWING TO SAVE GEOMETRY INFO
 if os.path.isfile("winfo"):
-    with open("winfo") as f:
-        lcoor = f.read()
+    with open("winfo") as z:
+        lcoor = z.read()
     root.geometry(lcoor.strip())
 else:
-    root.geometry("400x300") # WxH+left+top
+    root.geometry("673x372") # WxH+left+top
 
 
 root.protocol("WM_DELETE_WINDOW", save_location)  # UNCOMMENT TO SAVE GEOMETRY INFO
 Sizegrip(root).place(rely=1.0, relx=1.0, x=0, y=0, anchor='se')
-#root.resizable(0, 0) # no resize & removes maximize button
-# root.minsize(w, h)  # width, height
-# root.maxsize(w, h)
+# root.resizable(0, 0) # no resize & removes maximize button
+root.minsize(673, 372)  # width, height
+root.maxsize(680, 379)
 # root.overrideredirect(True) # removed window decorations
 # root.attributes('-type', 'splash')  # don't show in taskbar
 # root.iconphoto(False, PhotoImage(file='icon.png'))
