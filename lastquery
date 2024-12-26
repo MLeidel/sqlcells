@@ -1,10 +1,9 @@
-d1: /home/ml/apps/python/projects/sqlcells/testfiles/sampledatainsnames.xlsx
-d2: /home/ml/apps/python/projects/sqlcells/testfiles/sampledatainsurance.xlsx
+d1: /home/ml/apps/python/projects/sqlcells/testfiles/mt_cost.xlsx
+d2: /home/ml/apps/python/projects/sqlcells/testfiles/mt_sales.xlsx
 SQL
-select d1.Policy, last_name, first_name, Expiry, State, InsuredValue, email
-	from d1, d2
-	where d1.Policy = d2.Policy
-	order by State, Expiry, last_name
+select d1.item, sum(amount - cost) Profat from d1, d2
+	where d1.item = d2.item
+	group by d1.item
 OUTPUT
 /home/ml/apps/python/projects/sqlcells/out.xlsx
 LAUNCH

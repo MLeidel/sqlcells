@@ -142,17 +142,23 @@ class Application(Frame):
     # ----------------------------------------------------------------------------
 
     def on_save(self):
-        ''' select an output file (xlsx or csv) for the query '''
+        ''' Save SQL query setup to a txt file '''
+        path = self.lstn.get(0)
+        self.parse_input(path)
         fname = filedialog.asksaveasfilename(confirmoverwrite=True,
-                                            initialdir=os.path.dirname(os.path.abspath(__file__)),
+                                            initialdir=os.path.dirname(cfile),
                                             title = "Save Query",
                                             filetypes = (("all files","*.*"),("text files","*.txt")) )
         if fname:
             self.save_query(fname)
-            messagebox.showinfo("Saved", fname)
+
 
     def on_open(self):
-        fname =  filedialog.askopenfilename(initialdir = p,
+        ''' Reads the SQL setup to a file.
+            Uses path from d1 input file '''
+        path = self.lstn.get(0)
+        self.parse_input(path)
+        fname =  filedialog.askopenfilename(initialdir=os.path.dirname(cfile),
                                             title = "Open Query",
                                             filetypes = (("all files","*.*"),("text files","*.txt")))
         if fname:
@@ -178,8 +184,10 @@ class Application(Frame):
 
     def on_output(self):
         ''' select an output file (xlsx or csv) for the query '''
+        path = self.lstn.get(0)
+        self.parse_input(path)
         fname = filedialog.asksaveasfilename(confirmoverwrite=True,
-                                            initialdir=os.path.dirname(os.path.abspath(__file__)),
+                                            initialdir=os.path.dirname(cfile),
                                             title = "Save Results",
                                             filetypes = (("xlsx files","*.xls*"),
                                             ("csv files","*.csv"),("all files","*.*")) )
@@ -290,31 +298,38 @@ class Application(Frame):
         ''' reads file of saved query code and displays in user's GUI '''
         code = ""
         self.savefile = filepath # for quicksave
-        with open(filepath, "r", encoding='utf-8') as fin:
-            line = fin.readline().strip()
-            self.on_clear()
-            while line != "SQL":
-                self.lstn.insert(tk.END, line)
+        try:
+            with open(filepath, "r", encoding='utf-8') as fin:
                 line = fin.readline().strip()
-            while True:
-                line = fin.readline()  # now reading the SQL lines (with EOLs)
-                if line == '' or line.startswith("OUTPUT"):
-                    break
-                code += line  # concatenate all the SQL lines
-            path = fin.readline().strip() # read the output path
-            # now read until end of file checking for LAUNCH and LOG
-            while line != '':
-                line = fin.readline().strip()
-                if line == "LAUNCH":
-                    self.vckbox.set(1)
-                if line == "LOG":
-                    self.vSckbox.set(1)
+                self.on_clear()
+                while line != "SQL":
+                    self.lstn.insert(tk.END, line)
+                    line = fin.readline().strip()
+                while True:
+                    line = fin.readline()  # now reading the SQL lines (with EOLs)
+                    if line == '' or line.startswith("OUTPUT"):
+                        break
+                    code += line  # concatenate all the SQL lines
+                path = fin.readline().strip() # read the output path
+                # now read until end of file checking for LAUNCH and LOG
+                while line != '':
+                    line = fin.readline().strip()
+                    if line == "LAUNCH":
+                        self.vckbox.set(1)
+                    if line == "LOG":
+                        self.vSckbox.set(1)
+        except:
+            messagebox.showerror("Reading File Error", "Re-check the FILE TYPE")
+            return
         self.sqltext.delete("1.0", END)  # clear the Text widget
         self.sqltext.insert(1.0, code.strip())  # insert the SQL code
         self.ventr.set(path)  # output path
 
     def save_query(self, filepath):
         ''' writes input file paths and SQL code to filepath '''
+        if filepath.endswith(".csv") or filepath.endswith(".xlsx") or filepath.endswith(".xls"):
+            messagebox.showwarning("Saving Query Code", "Incorrect File Type!")
+            return
         self.savefile = filepath  # for quicksave
         with open(filepath, "w", encoding='utf-8') as fout:
             items = list(self.lstn.get(0, tk.END))
@@ -330,6 +345,7 @@ class Application(Frame):
                 fout.write("LAUNCH" + "\n")
             if self.vSckbox.get() == 1:
                 fout.write("LOG" + "\n")
+        toast.show_toast()
 
     def on_exit(self, e=None):
         ''' Control-Q saves the current query details '''
@@ -342,7 +358,6 @@ class Application(Frame):
             savefile set with on_open and on_save. '''
         if self.savefile != "":
             self.save_query(self.savefile)
-            toast.show_toast()
         else:
             self.on_save()
 
