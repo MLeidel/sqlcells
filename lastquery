@@ -1,11 +1,10 @@
-d1: testfiles/titanic3.xls
+d1: /home/ml/apps/python/projects/sqlcells/testfiles/sampledatainsnames.xlsx
+d2: /home/ml/apps/python/projects/sqlcells/testfiles/sampledatainsurance.xlsx
 SQL
-# People that shared a cabin on the Titanic
-# where not all from the same cabin survived.
-
-select cabin, sum(survived) lived, count(name) count from d1
-	group by cabin
-	having lived < count
+select d1.Policy, last_name, first_name, Expiry, State, InsuredValue, email
+	from d1, d2
+	where d1.Policy = d2.Policy
+	order by State, Expiry, last_name
 OUTPUT
-out.xlsx
+/home/ml/apps/python/projects/sqlcells/out.xlsx
 LAUNCH

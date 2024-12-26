@@ -19,17 +19,16 @@ Clicking on an input file lets you open the spreadsheet/csv or view the columns 
 
 The following is an example of a saved query setup file. _sql\_sample.txt_
 
-        d1: /home/user/python/projects/sqlcells/testfiles/sampledatainsnames.xlsx  
-        d2: /home/user/python/projects/sqlcells/testfiles/sampledatainsurance.xlsx  
-        SQL  
-        select d1.Policy, last_name, first_name, Expiry, State, InsuredValue  
-        	from d1, d2  
-        	order by State, Expiry, last_name  
-
-        OUTPUT
-        /home/user/python/projects/sqlcells/out.xlsx
-        LAUNCH
-        LOG
+    d1: /home/x/y/z/projects/sqlcells/testfiles/sampledatainsnames.xlsx
+    d2: /home/x/y/z/projects/sqlcells/testfiles/sampledatainsurance.xlsx
+    SQL
+    select d1.Policy, last_name, first_name, Expiry, State, InsuredValue, email
+    	from d1, d2
+    	where d1.Policy = d2.Policy
+    	order by State, Expiry, last_name
+    OUTPUT
+    out.xlsx
+    LAUNCH
 
 An existing query can be run in an _unattended_ or _batch mode_ by using the saved query setup file
 as an argument at startup:
@@ -38,3 +37,4 @@ as an argument at startup:
 
 The Launch and Log options will still apply as they were set when saved.
 
+_For Windows note: xlrd may need to be upgraded_
