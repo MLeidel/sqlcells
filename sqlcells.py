@@ -157,6 +157,8 @@ class Application(Frame):
         ''' Reads the SQL setup to a file.
             Uses path from d1 input file '''
         path = self.lstn.get(0)
+        if path == "":
+            path = p
         self.parse_input(path)
         fname =  filedialog.askopenfilename(initialdir=os.path.dirname(cfile),
                                             title = "Open Query",
