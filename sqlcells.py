@@ -16,6 +16,7 @@ import subprocess
 import platform
 import pandas as pd
 import pandasql as psql
+import sqlite3
 from ttkbootstrap import *
 from ttkbootstrap.constants import *
 from ttkbootstrap.tooltip import ToolTip
@@ -158,9 +159,11 @@ class Application(Frame):
             Uses path from d1 input file '''
         path = self.lstn.get(0)
         if path == "":
-            path = p
-        self.parse_input(path)
-        fname =  filedialog.askopenfilename(initialdir=os.path.dirname(cfile),
+            dirname = p
+        else:
+            self.parse_input(path)
+            dirname = cfile  # global cfile from parse_input
+        fname =  filedialog.askopenfilename(initialdir=os.path.dirname(dirname),
                                             title = "Open Query",
                                             filetypes = (("all files","*.*"),("text files","*.txt")))
         if fname:
@@ -230,12 +233,28 @@ class Application(Frame):
             messagebox.showerror("An error occurred", e)
             return
         # now create output file and optionally launch it
-        if outfile.endswith(".xlsx"):
+        if outfile.endswith((".xlsx", ".xls")):
             result_df.to_excel(outfile, index=False)  # save to new spreadsheet
-        else:
+        elif outfile.endswith(".csv"):
             result_df.to_csv(outfile)
+        elif outfile.endswith((".sqlite", ".db")):
+            # Export to SQLite Database
+            # Connect to (or create) the SQLite database
+            conn = sqlite3.connect(outfile)
+            # Choose a table name, e.g., 'result_table'. You can make this dynamic if needed.
+            table_name = 'result_table'
+            # Write the DataFrame to the SQLite table
+            result_df.to_sql(table_name, conn, if_exists='replace', index=False)
+            # Commit changes and close the connection
+            conn.commit()
+            conn.close()
+        else:
+            messagebox.showerror("Unsupported file format", "The specified file format is not supported.")
+            return
         # check to see if launch spreadsheet requested
-        if self.vckbox.get() == 1:
+        if outfile.endswith((".sqlite", ".db")):
+            messagebox.showinfo("Sqlite", "Database with result_table was created")
+        elif self.vckbox.get() == 1:
             if platform.system() == 'Windows':
                 subprocess.Popen(["C:\\Program Files\\LibreOffice\\program\\scalc.exe",  outfile])
             else:
@@ -247,7 +266,7 @@ class Application(Frame):
                 items = list(self.lstn.get(0, tk.END))
                 for f in items:
                     fout.write(f + "\n")
-                fout.write("\n" + query + "-------------------\n")
+                fout.write("\n" + query + "\n-------------------\n")
 
     def parse_input(self, strg):
         ''' split out the data frame name file path,

@@ -13,6 +13,8 @@ When _Log_ is checked, the input file paths and SQL code is appended to a log fi
 
 There is a limit of seven input tables (files: spreadsheet or csv)
 
+The output table may be any of these formats: `.xlsx`, `.xls`, `.csv`, or `.db`, `.sqlite`
+
 Clicking on an input file lets you open the spreadsheet/csv or view the columns and data types.
 
 ![program](images/viewing.png "SQLcells.py")
@@ -30,7 +32,7 @@ The following is an example of a saved query setup file. _sql\_sample.txt_
     out.xlsx
     LAUNCH
 
-An existing query can be run in an _unattended_ or _batch mode_ by using the saved query setup file
+An existing query can be run in an _unattended_ (_batch mode_) by using the saved query setup file
 as an argument at startup:
 
     $ python3 sqlcells.py sql_sample.txt
