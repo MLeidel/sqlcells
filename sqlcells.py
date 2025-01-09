@@ -266,7 +266,7 @@ class Application(Frame):
                 items = list(self.lstn.get(0, tk.END))
                 for f in items:
                     fout.write(f + "\n")
-                fout.write("\n" + query + "\n-------------------\n")
+                fout.write("\n" + query.strip() + "\n\n" + outfile + "\n-------------------------------------\n")
 
     def parse_input(self, strg):
         ''' split out the data frame name file path,
