@@ -3,6 +3,8 @@ code file: sqlcells.py
 date: Dec 2024
 comments:
     Use SQL on Spreadsheets (.xlsx, csv)
+        input spreadsheet(s)
+        output spreadsheet or csv
 '''
 import os
 import sys
@@ -17,6 +19,7 @@ import platform
 import pandas as pd
 import pandasql as psql
 import sqlite3
+import threading
 from ttkbootstrap import *
 from ttkbootstrap.constants import *
 from ttkbootstrap.tooltip import ToolTip
@@ -58,7 +61,6 @@ class Application(Frame):
         frm1 = Frame(self)
         frm1.grid(row=2, column=1, columnspan=2)
 
-
         btn_input = Button(frm1, text='Load Input Files', bootstyle="outline", command=self.on_input)
         btn_input.grid(row=1, column=1, padx=4, pady=4)
         ToolTip(btn_input, text="locate an .xlsx or .csv file for input")
@@ -84,10 +86,17 @@ class Application(Frame):
         self.scroll_text.grid(row=3, column=2, sticky="wns")  # use nse
         self.sqltext['yscrollcommand'] = self.scroll_text.set
 
+        #
+        # The following two lines permit
+        # the Sql text area to expand
+        # everything else stays put
+        #
+        self.rowconfigure(3, weight=1)
+        self.columnconfigure(1, weight=1)
+
 
         frm2 = Frame(self)
         frm2.grid(row=4, column=1)
-
 
         self.ventr = StringVar()
         entr = Entry(frm2, textvariable=self.ventr, width=65)
@@ -139,6 +148,16 @@ class Application(Frame):
         else:
             if os.path.isfile("lastquery"):
                 self.read_saved_query('lastquery')  # open last query setup
+
+        ###################################################################
+        # txt bg = #333
+        # txt fg = #DEE
+        self.sqltext.tag_configure("literals",foreground="darkorange")
+        self.sqltext.tag_configure("remarks", foreground="gray")
+
+        ###################################################################
+
+        self.highlite()  # starts off syntax highliting thread
 
     # ----------------------------------------------------------------------------
 
@@ -413,6 +432,40 @@ class Application(Frame):
         btn = Button(t, text="Close", command = t.destroy)
         btn.grid(row=1, column=0, sticky='sew', padx=5, pady=5)
 
+
+    # SQL code hilighting for literals and remarks follows
+
+    def highlite(self):
+        global t
+
+        self.highlight_pattern(r"(#.*|//.*)\n", "remarks", regexp=True)
+
+        self.highlight_pattern(r"[\"\'`]((?:.|\n)*?)[\'\"`]",
+                               "literals", regexp=True)
+
+        t = threading.Timer(1.25, self.highlite)  # every 1.5 seconds
+        t.daemon = True  # for threading runtime error
+        t.start()
+
+    def highlight_pattern(self, pattern, tag, start="1.0", end="end", regexp=False):
+        start = self.sqltext.index(start)
+        end = self.sqltext.index(end)
+        self.sqltext.tag_remove(tag, start, end)
+        self.sqltext.mark_set("matchStart", start)
+        self.sqltext.mark_set("matchEnd", start)
+        self.sqltext.mark_set("searchLimit", end)
+
+        count = IntVar()
+        while True:
+            index = self.sqltext.search(pattern, "matchEnd","searchLimit",
+                                count=count, regexp=True)
+            if index == "": break
+            if count.get() == 0: break # degenerate pattern zero-length strings
+            self.sqltext.mark_set("matchStart", index)
+            self.sqltext.mark_set("matchEnd", "%s+%sc" % (index, count.get()))
+            self.sqltext.tag_add(tag, "matchStart", "matchEnd")
+
+
 # change working directory to path for this file
 p = os.path.realpath(__file__)
 os.chdir(os.path.dirname(p))
@@ -443,8 +496,8 @@ else:
 root.protocol("WM_DELETE_WINDOW", save_location)  # UNCOMMENT TO SAVE GEOMETRY INFO
 Sizegrip(root).place(rely=1.0, relx=1.0, x=0, y=0, anchor='se')
 # root.resizable(0, 0) # no resize & removes maximize button
-root.minsize(673, 372)  # width, height
-root.maxsize(680, 379)
+root.minsize(650, 375)  # width, height
+# root.maxsize(680, 379)
 # root.overrideredirect(True) # removed window decorations
 # root.attributes('-type', 'splash')  # don't show in taskbar
 # root.iconphoto(False, PhotoImage(file='icon.png'))

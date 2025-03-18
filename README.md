@@ -37,7 +37,7 @@ The following is an example of a saved query setup file:
     out.xlsx
     LAUNCH
     LOG
-    
+
 An existing query can be run in an _unattended_ (_batch mode_) by using a saved query setup file
 as an argument at startup:
 
