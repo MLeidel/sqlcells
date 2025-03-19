@@ -281,12 +281,14 @@ class Application(Frame):
         if outfile.endswith((".sqlite", ".db")):
             messagebox.showinfo("Sqlite", "Database with result_table was created")
         elif self.vckbox.get() == 1:
+            # NOTE: outfile must be a fullpath
             if platform.system() == 'Windows':
-                # subprocess.Popen(["C:\\Program Files\\LibreOffice\\program\\scalc.exe",  outfile])
-                subprocess.Popen(["C:\\Program Files\\Microsoft Office\\root\\Office16\\EXCEL.EXE",  outfile])
+                subprocess.Popen(["C:\\Program Files\\LibreOffice\\program\\scalc.exe",  outfile])
+                # subprocess.Popen(["C:\\Program Files\\Microsoft Office\\root\\Office16\\EXCEL.EXE",  outfile])
+                # subprocess.Popen(["C:\\Program Files\\ONLYOFFICE\\DesktopEditors\\DesktopEditors.exe",  outfile])
             else:
-                # subprocess.Popen(['libreoffice', '--calc', outfile])
-                subprocess.Popen(["/usr/bin/onlyoffice-desktopeditors", outfile])
+                subprocess.Popen(['libreoffice', '--calc', outfile])
+                # subprocess.Popen(["/usr/bin/onlyoffice-desktopeditors", outfile])
 
         # check to see if logging requested
         if self.vSckbox.get() == 1:
@@ -431,10 +433,14 @@ class Application(Frame):
                             initialvalue=1)
         self.parse_input(list_item)
         if request == 1:
+            # NOTE: outfile must be a fullpath
             if platform.system() == 'Windows':
                 subprocess.Popen(["C:\\Program Files\\LibreOffice\\program\\scalc.exe",  cfile])
+                # subprocess.Popen(["C:\\Program Files\\Microsoft Office\\root\\Office16\\EXCEL.EXE",  cfile])
+                # subprocess.Popen(["C:\\Program Files\\ONLYOFFICE\\DesktopEditors\\DesktopEditors.exe",  cfile])
             else:
                 subprocess.Popen(['libreoffice', '--calc', cfile])
+                # subprocess.Popen(["/usr/bin/onlyoffice-desktopeditors", cfile])
         elif request == 2:
             if ctype == "csv":
                 df = pd.read_csv(cfile)
