@@ -41,11 +41,13 @@ toast = ToastNotification(
 
 class Application(Frame):
     ''' main class docstring '''
+
+
     def __init__(self, parent):
         Frame.__init__(self, parent)
         self.pack(fill=BOTH, expand=True, padx=4, pady=4)
-        self.create_widgets()
         self.savefile = ""
+        self.create_widgets()
 
     def create_widgets(self):
         ''' creates GUI for app '''
@@ -151,7 +153,7 @@ class Application(Frame):
             if os.path.isfile("lastquery"):
                 with open("lastquery", "r") as fin:
                     fname = fin.readline().strip()
-                self.read_saved_query(fname)  # open last query setup
+            self.read_saved_query(fname)  # open last query setup
 
         ###################################################################
         # txt bg = #333
@@ -280,9 +282,12 @@ class Application(Frame):
             messagebox.showinfo("Sqlite", "Database with result_table was created")
         elif self.vckbox.get() == 1:
             if platform.system() == 'Windows':
-                subprocess.Popen(["C:\\Program Files\\LibreOffice\\program\\scalc.exe",  outfile])
+                # subprocess.Popen(["C:\\Program Files\\LibreOffice\\program\\scalc.exe",  outfile])
+                subprocess.Popen(["C:\\Program Files\\Microsoft Office\\root\\Office16\\EXCEL.EXE",  outfile])
             else:
-                subprocess.Popen(['libreoffice', '--calc', outfile])
+                # subprocess.Popen(['libreoffice', '--calc', outfile])
+                subprocess.Popen(["/usr/bin/onlyoffice-desktopeditors", outfile])
+
         # check to see if logging requested
         if self.vSckbox.get() == 1:
             with open("sqllog.txt", "a", encoding='utf-8') as fout:
@@ -373,7 +378,7 @@ class Application(Frame):
         self.sqltext.delete("1.0", END)  # clear the Text widget
         self.sqltext.insert(1.0, code.strip())  # insert the SQL code
         self.ventr.set(path)  # output path
-        root.title(f"SQLcells--> {os.path.basename(filepath)}")
+        root.title(f"SQLcells--> {os.path.basename(self.savefile)}")
 
     def save_query(self, filepath):
         ''' writes input file paths and SQL code to filepath '''
@@ -400,6 +405,8 @@ class Application(Frame):
 
     def on_exit(self, e=None):
         ''' Control-Q saves the current query details '''
+        # print("savefile: ", self.savefile)
+        # if (self.savefile != ""):  # be carfull with this class level variable
         with open("lastquery", "w") as fout:
             fout.write(self.savefile + "\n")
         save_location()  # exit program

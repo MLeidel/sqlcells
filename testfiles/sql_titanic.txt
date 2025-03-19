@@ -1,3 +1,4 @@
+sqlcells
 d1: testfiles/titanic3.xls
 SQL
 # People that shared a cabin on the Titanic
