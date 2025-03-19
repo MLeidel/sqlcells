@@ -5,6 +5,8 @@ comments:
     Use SQL on Spreadsheets (.xlsx, csv)
         input spreadsheet(s)
         output spreadsheet or csv
+TODO:
+    option to use MS Excel or LibreOffice Calc
 '''
 import os
 import sys
@@ -147,7 +149,9 @@ class Application(Frame):
             self.on_exit()
         else:
             if os.path.isfile("lastquery"):
-                self.read_saved_query('lastquery')  # open last query setup
+                with open("lastquery", "r") as fin:
+                    fname = fin.readline().strip()
+                self.read_saved_query(fname)  # open last query setup
 
         ###################################################################
         # txt bg = #333
@@ -170,6 +174,7 @@ class Application(Frame):
                                             title = "Save Query",
                                             filetypes = (("all files","*.*"),("text files","*.txt")) )
         if fname:
+            root.title(f"SQLcells--> {os.path.basename(fname)}")
             self.save_query(fname)
 
 
@@ -341,6 +346,10 @@ class Application(Frame):
         try:
             with open(filepath, "r", encoding='utf-8') as fin:
                 line = fin.readline().strip()
+                if line != "sqlcells":
+                    messagebox.showerror("Reading File Error", "Re-check the FILE TYPE")
+                    return
+                line = fin.readline().strip()
                 self.on_clear()
                 while line != "SQL":
                     self.lstn.insert(tk.END, line)
@@ -364,6 +373,7 @@ class Application(Frame):
         self.sqltext.delete("1.0", END)  # clear the Text widget
         self.sqltext.insert(1.0, code.strip())  # insert the SQL code
         self.ventr.set(path)  # output path
+        root.title(f"SQLcells--> {os.path.basename(filepath)}")
 
     def save_query(self, filepath):
         ''' writes input file paths and SQL code to filepath '''
@@ -372,6 +382,7 @@ class Application(Frame):
             return
         self.savefile = filepath  # for quicksave
         with open(filepath, "w", encoding='utf-8') as fout:
+            fout.write("sqlcells\n")  # identifies saved query files
             items = list(self.lstn.get(0, tk.END))
             for line in items:
                 fout.write(line + "\n")
@@ -389,7 +400,8 @@ class Application(Frame):
 
     def on_exit(self, e=None):
         ''' Control-Q saves the current query details '''
-        self.save_query("lastquery")
+        with open("lastquery", "w") as fout:
+            fout.write(self.savefile + "\n")
         save_location()  # exit program
 
     def quicksave(self, e=None):
