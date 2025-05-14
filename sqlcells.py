@@ -6,7 +6,8 @@ comments:
         input spreadsheet(s)
         output spreadsheet or csv
 TODO:
-    option to use MS Excel or LibreOffice Calc
+    option to use MS Excel or LibreOffice Calc or OnlyOffice
+    currently hard coded with commenting
 '''
 import os
 import sys
